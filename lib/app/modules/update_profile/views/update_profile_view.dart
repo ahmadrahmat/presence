@@ -1,5 +1,7 @@
 // ignore_for_file: prefer_const_constructors
 
+import 'dart:io';
+
 import 'package:flutter/material.dart';
 
 import 'package:get/get.dart';
@@ -60,10 +62,42 @@ class UpdateProfileView extends GetView<UpdateProfileController> {
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              Get.arguments["profile"] != null && Get.arguments["profile"] != ""
-                  ? Text("Ada profile")
-                  : Text("No choosen.."),
-              TextButton(onPressed: () {}, child: Text("Choose"))
+              GetBuilder<UpdateProfileController>(
+                builder: (c) {
+                  if (c.image != null) {
+                    return ClipOval(
+                      child: Container(
+                        height: 100,
+                        width: 100,
+                        child: Image.file(
+                          File(c.image!.path),
+                          fit: BoxFit.cover,
+                        ),
+                      ),
+                    );
+                  } else {
+                    if (Get.arguments['profile'] != null) {
+                      return ClipOval(
+                        child: Container(
+                          height: 100,
+                          width: 100,
+                          child: Image.network(
+                            Get.arguments['profile'],
+                            fit: BoxFit.cover,
+                          ),
+                        ),
+                      );
+                    } else {
+                      return Text("no image");
+                    }
+                  }
+                },
+              ),
+              TextButton(
+                  onPressed: () {
+                    controller.pickImage();
+                  },
+                  child: Text("Choose"))
             ],
           ),
           SizedBox(height: 30),
