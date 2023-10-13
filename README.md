@@ -1,6 +1,8 @@
 # presence
 
-A new Flutter project.
+Presence Apps by Kuldii Project
+
+Source from : https://youtube.com/playlist?list=PL7jdfftn7HKt8J8ZD-pJpzwfnwEju7O35&si=4bHbER6Wl7naYOky
 
 ## Getting Started
 
