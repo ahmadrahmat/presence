@@ -27,7 +27,8 @@ class ProfileView extends GetView<ProfileController> {
 
             if (snapshot.hasData) {
               Map<String, dynamic> user = snapshot.data!.data()!;
-
+              String defaultImage =
+                  "https://ui-avatars.com/api/?name=${user['name']}&background=0D8ABC&color=fff";
               return ListView(
                 padding: EdgeInsets.all(20),
                 children: [
@@ -42,8 +43,8 @@ class ProfileView extends GetView<ProfileController> {
                             user['profile'] != null
                                 ? user['profile'] != ""
                                     ? user['profile']
-                                    : "https://ui-avatars.com/api/?name=${user['name']}&background=0D8ABC&color=fff"
-                                : "https://ui-avatars.com/api/?name=${user['name']}&background=0D8ABC&color=fff",
+                                    : defaultImage
+                                : defaultImage,
                             fit: BoxFit.cover,
                           ),
                         ),

@@ -51,6 +51,21 @@ class UpdateProfileView extends GetView<UpdateProfileController> {
               border: OutlineInputBorder(),
             ),
           ),
+          SizedBox(height: 25),
+          Text(
+            "Profile",
+            style: TextStyle(fontWeight: FontWeight.bold),
+          ),
+          SizedBox(height: 10),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Get.arguments["profile"] != null && Get.arguments["profile"] != ""
+                  ? Text("Ada profile")
+                  : Text("No choosen.."),
+              TextButton(onPressed: () {}, child: Text("Choose"))
+            ],
+          ),
           SizedBox(height: 30),
           Obx(
             () => ElevatedButton(
