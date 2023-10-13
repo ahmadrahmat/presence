@@ -66,7 +66,7 @@ class UpdateProfileView extends GetView<UpdateProfileController> {
                 builder: (c) {
                   if (c.image != null) {
                     return ClipOval(
-                      child: Container(
+                      child: SizedBox(
                         height: 100,
                         width: 100,
                         child: Image.file(
@@ -77,15 +77,24 @@ class UpdateProfileView extends GetView<UpdateProfileController> {
                     );
                   } else {
                     if (Get.arguments['profile'] != null) {
-                      return ClipOval(
-                        child: Container(
-                          height: 100,
-                          width: 100,
-                          child: Image.network(
-                            Get.arguments['profile'],
-                            fit: BoxFit.cover,
+                      return Column(
+                        children: [
+                          ClipOval(
+                            child: SizedBox(
+                              height: 100,
+                              width: 100,
+                              child: Image.network(
+                                Get.arguments['profile'],
+                                fit: BoxFit.cover,
+                              ),
+                            ),
                           ),
-                        ),
+                          TextButton(
+                              onPressed: () {
+                                controller.deleteProfile(Get.arguments['uid']);
+                              },
+                              child: Text("Delete"))
+                        ],
                       );
                     } else {
                       return Text("no image");
