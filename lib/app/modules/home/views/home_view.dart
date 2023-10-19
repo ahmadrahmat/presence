@@ -65,7 +65,9 @@ class HomeView extends GetView<HomeController> {
                           style: TextStyle(
                               fontSize: 20, fontWeight: FontWeight.bold),
                         ),
-                        Text("Belum ada lokasi."),
+                        Text(user['position'] != null
+                            ? "${user['position']}"
+                            : "Belum ada lokasi."),
                       ],
                     )
                   ],

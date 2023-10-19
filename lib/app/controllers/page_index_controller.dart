@@ -1,9 +1,14 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:get/get.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:presence/app/routes/app_pages.dart';
 
 class PageIndexController extends GetxController {
   RxInt pageIndex = 0.obs;
+
+  FirebaseAuth auth = FirebaseAuth.instance;
+  FirebaseFirestore firestore = FirebaseFirestore.instance;
 
   void changePage(int i) async {
     // pageIndex.value = i;
@@ -14,7 +19,7 @@ class PageIndexController extends GetxController {
         Map<String, dynamic> dataResponse = await determinePosition();
         if (dataResponse['error'] != true) {
           Position position = dataResponse['position'];
-          // print("LATITUDE: ${position.latitude}, LONGITUDE: ${position.longitude}");
+          await updatePosition(position);
           Get.snackbar(dataResponse['message'],
               "LATITUDE: ${position.latitude}, LONGITUDE: ${position.longitude}");
         } else {
@@ -29,6 +34,17 @@ class PageIndexController extends GetxController {
         pageIndex.value = i;
         Get.offAllNamed(Routes.HOME);
     }
+  }
+
+  Future<void> updatePosition(Position position) async {
+    String uid = auth.currentUser!.uid;
+
+    await firestore.collection("pegawai").doc(uid).update({
+      "position": {
+        "lat": position.latitude,
+        "long": position.longitude,
+      }
+    });
   }
 
   Future<Map<String, dynamic>> determinePosition() async {
