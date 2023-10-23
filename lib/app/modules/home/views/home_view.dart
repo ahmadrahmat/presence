@@ -179,67 +179,92 @@ class HomeView extends GetView<HomeController> {
                 SizedBox(
                   height: 10,
                 ),
-                ListView.builder(
-                  shrinkWrap: true,
-                  physics: NeverScrollableScrollPhysics(),
-                  itemCount: 5,
-                  itemBuilder: (context, index) {
-                    return Padding(
-                      padding: const EdgeInsets.only(bottom: 20),
-                      child: Material(
-                        color: Colors.grey[200],
-                        borderRadius: BorderRadius.circular(20),
-                        child: InkWell(
-                          onTap: () {
-                            Get.toNamed(Routes.DETAIL_PRESENSI);
-                          },
-                          borderRadius: BorderRadius.circular(20),
-                          child: Container(
-                            padding: EdgeInsets.all(20),
-                            decoration: BoxDecoration(
+                StreamBuilder<QuerySnapshot<Map<String, dynamic>>>(
+                    stream: controller.streamLastPresence(),
+                    builder: (context, snapPresence) {
+                      if (snapPresence.connectionState ==
+                          ConnectionState.waiting) {
+                        return Center(child: CircularProgressIndicator());
+                      }
+                      if (snapPresence.data?.docs.length == 0 ||
+                          snapPresence.data?.docs == null) {
+                        return Center(child: Text("Tidak ada data."));
+                      }
+                      return ListView.builder(
+                        shrinkWrap: true,
+                        physics: NeverScrollableScrollPhysics(),
+                        itemCount: snapPresence.data!.docs.length,
+                        itemBuilder: (context, index) {
+                          Map<String, dynamic> data = snapPresence
+                              .data!.docs.reversed
+                              .toList()[index]
+                              .data();
+                          return Padding(
+                            padding: const EdgeInsets.only(bottom: 20),
+                            child: Material(
+                              color: Colors.grey[200],
                               borderRadius: BorderRadius.circular(20),
-                            ),
-                            child: Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                Row(
-                                  mainAxisAlignment:
-                                      MainAxisAlignment.spaceBetween,
-                                  children: [
-                                    Text(
-                                      "Masuk",
-                                      style: TextStyle(
-                                        fontWeight: FontWeight.bold,
+                              child: InkWell(
+                                onTap: () {
+                                  Get.toNamed(Routes.DETAIL_PRESENSI);
+                                },
+                                borderRadius: BorderRadius.circular(20),
+                                child: Container(
+                                  padding: EdgeInsets.all(20),
+                                  decoration: BoxDecoration(
+                                    borderRadius: BorderRadius.circular(20),
+                                  ),
+                                  child: Column(
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.start,
+                                    children: [
+                                      Row(
+                                        mainAxisAlignment:
+                                            MainAxisAlignment.spaceBetween,
+                                        children: [
+                                          Text(
+                                            "Masuk",
+                                            style: TextStyle(
+                                              fontWeight: FontWeight.bold,
+                                            ),
+                                          ),
+                                          Text(
+                                            DateFormat.yMMMEd().format(
+                                                DateTime.parse(data['date'])),
+                                            style: TextStyle(
+                                              fontWeight: FontWeight.bold,
+                                            ),
+                                          ),
+                                        ],
                                       ),
-                                    ),
-                                    Text(
-                                      DateFormat.yMMMEd()
-                                          .format(DateTime.now()),
-                                      style: TextStyle(
-                                        fontWeight: FontWeight.bold,
+                                      Text(data['masuk']?['date'] == null
+                                          ? "-"
+                                          : DateFormat.jms().format(
+                                              DateTime.parse(
+                                                  data['masuk']['date']))),
+                                      SizedBox(
+                                        height: 10,
                                       ),
-                                    ),
-                                  ],
-                                ),
-                                Text(DateFormat.jms().format(DateTime.now())),
-                                SizedBox(
-                                  height: 10,
-                                ),
-                                Text(
-                                  "Keluar",
-                                  style: TextStyle(
-                                    fontWeight: FontWeight.bold,
+                                      Text(
+                                        "Keluar",
+                                        style: TextStyle(
+                                          fontWeight: FontWeight.bold,
+                                        ),
+                                      ),
+                                      Text(data['keluar']?['date'] == null
+                                          ? "-"
+                                          : DateFormat.jms().format(
+                                              DateTime.parse(
+                                                  data['keluar']['date']))),
+                                    ],
                                   ),
                                 ),
-                                Text(DateFormat.jms().format(DateTime.now())),
-                              ],
+                              ),
                             ),
-                          ),
-                        ),
-                      ),
-                    );
-                  },
-                )
+                          );
+                        },
+                      );
+                    })
               ],
             );
           } else {
