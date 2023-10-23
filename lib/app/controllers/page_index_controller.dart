@@ -60,7 +60,7 @@ class PageIndexController extends GetxController {
     // print(todayDocID);
 
     if (snapPresence.docs.length == 0) {
-      // belum pernah absen & set absen masuk
+      // belum pernah absen sama sekali & set absen masuk
 
       await colPresence.doc(todayDocID).set({
         "date": now.toIso8601String(),
@@ -74,6 +74,41 @@ class PageIndexController extends GetxController {
       });
     } else {
       // sudah pernah absen -> cek hari ini udah absen masuk/keluar belum?
+      DocumentSnapshot<Map<String, dynamic>> todayDoc =
+          await colPresence.doc(todayDocID).get();
+
+      if (todayDoc.exists == true) {
+        // tinggal absen keluar atau sudah absen masuk dan keluar
+        Map<String, dynamic>? dataPresenceToday = todayDoc.data();
+        if (dataPresenceToday?['keluar'] != null) {
+          // sudah absen masuk dan keluar
+          Get.snackbar(
+              "Sukses", "Kamu sudah melakukan absensi masuk dan keluar.");
+        } else {
+          // absen keluar
+          await colPresence.doc(todayDocID).update({
+            "keluar": {
+              "date": now.toIso8601String(),
+              "lat": position.latitude,
+              "long": position.longitude,
+              "address": address,
+              "status": "Di dalam area",
+            }
+          });
+        }
+      } else {
+        // absen masuk
+        await colPresence.doc(todayDocID).set({
+          "date": now.toIso8601String(),
+          "masuk": {
+            "date": now.toIso8601String(),
+            "lat": position.latitude,
+            "long": position.longitude,
+            "address": address,
+            "status": "Di dalam area",
+          }
+        });
+      }
     }
   }
 
