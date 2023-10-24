@@ -1,5 +1,6 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:geocoding/geocoding.dart';
@@ -16,8 +17,6 @@ class PageIndexController extends GetxController {
     // pageIndex.value = i;
     switch (i) {
       case 1:
-        // Get.offAllNamed(Routes.ADD);
-        // print("ABSENSI");
         Map<String, dynamic> dataResponse = await determinePosition();
         if (dataResponse['error'] != true) {
           Position position = dataResponse['position'];
@@ -39,7 +38,7 @@ class PageIndexController extends GetxController {
           // melakukan presensi
           await presensi(position, address, distance);
 
-          Get.snackbar('Berhasil', 'Berhasil melakukan presensi.');
+          // Get.snackbar('Berhasil', 'Berhasil melakukan presensi.');
         } else {
           Get.snackbar("Terjadi kesalahan", dataResponse['message']);
         }
@@ -74,18 +73,32 @@ class PageIndexController extends GetxController {
     }
 
     if (snapPresence.docs.isEmpty) {
-      // belum pernah absen sama sekali & set absen masuk
-      await colPresence.doc(todayDocID).set({
-        "date": now.toIso8601String(),
-        "masuk": {
-          "date": now.toIso8601String(),
-          "lat": position.latitude,
-          "long": position.longitude,
-          "address": address,
-          "status": status,
-          "distance": distance,
-        }
-      });
+      // belum pernah absen sama sekali & set absen masuk pertama kalinya
+      await Get.defaultDialog(
+          title: "Validasi Presensi",
+          middleText: "Apakah kamu yakin ingin melakukan presensi masuk?",
+          actions: [
+            OutlinedButton(
+                onPressed: () => Get.back(), child: const Text("CANCEL")),
+            ElevatedButton(
+                onPressed: () async {
+                  await colPresence.doc(todayDocID).set({
+                    "date": now.toIso8601String(),
+                    "masuk": {
+                      "date": now.toIso8601String(),
+                      "lat": position.latitude,
+                      "long": position.longitude,
+                      "address": address,
+                      "status": status,
+                      "distance": distance,
+                    }
+                  });
+                  Get.back();
+                  Get.snackbar(
+                      "Berhasil", "Berhasil melakukan presensi masuk.");
+                },
+                child: const Text("YES"))
+          ]);
     } else {
       // sudah pernah absen -> cek hari ini udah absen masuk/keluar belum?
       DocumentSnapshot<Map<String, dynamic>> todayDoc =
@@ -97,33 +110,61 @@ class PageIndexController extends GetxController {
         if (dataPresenceToday?['keluar'] != null) {
           // sudah absen masuk dan keluar
           Get.snackbar(
-              "Sukses", "Kamu sudah melakukan absensi masuk dan keluar.");
+              "Informasi", "Kamu sudah melakukan absensi masuk dan keluar.");
         } else {
           // absen keluar
-          await colPresence.doc(todayDocID).update({
-            "keluar": {
-              "date": now.toIso8601String(),
-              "lat": position.latitude,
-              "long": position.longitude,
-              "address": address,
-              "status": status,
-              "distance": distance,
-            }
-          });
+          await Get.defaultDialog(
+              title: "Validasi Presensi",
+              middleText: "Apakah kamu yakin ingin melakukan presensi keluar?",
+              actions: [
+                OutlinedButton(
+                    onPressed: () => Get.back(), child: const Text("CANCEL")),
+                ElevatedButton(
+                    onPressed: () async {
+                      await colPresence.doc(todayDocID).update({
+                        "keluar": {
+                          "date": now.toIso8601String(),
+                          "lat": position.latitude,
+                          "long": position.longitude,
+                          "address": address,
+                          "status": status,
+                          "distance": distance,
+                        }
+                      });
+                      Get.back();
+                      Get.snackbar(
+                          "Berhasil", "Berhasil melakukan presensi keluar.");
+                    },
+                    child: const Text("YES"))
+              ]);
         }
       } else {
         // absen masuk
-        await colPresence.doc(todayDocID).set({
-          "date": now.toIso8601String(),
-          "masuk": {
-            "date": now.toIso8601String(),
-            "lat": position.latitude,
-            "long": position.longitude,
-            "address": address,
-            "status": status,
-            "distance": distance,
-          }
-        });
+        await Get.defaultDialog(
+            title: "Validasi Presensi",
+            middleText: "Apakah kamu yakin ingin melakukan presensi masuk?",
+            actions: [
+              OutlinedButton(
+                  onPressed: () => Get.back(), child: const Text("CANCEL")),
+              ElevatedButton(
+                  onPressed: () async {
+                    await colPresence.doc(todayDocID).set({
+                      "date": now.toIso8601String(),
+                      "masuk": {
+                        "date": now.toIso8601String(),
+                        "lat": position.latitude,
+                        "long": position.longitude,
+                        "address": address,
+                        "status": status,
+                        "distance": distance,
+                      }
+                    });
+                    Get.back();
+                    Get.snackbar(
+                        "Berhasil", "Berhasil melakukan presensi masuk.");
+                  },
+                  child: const Text("YES"))
+            ]);
       }
     }
   }
