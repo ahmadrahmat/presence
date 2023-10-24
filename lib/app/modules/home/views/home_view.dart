@@ -214,6 +214,7 @@ class HomeView extends GetView<HomeController> {
                         itemBuilder: (context, index) {
                           Map<String, dynamic> data =
                               snapPresence.data!.docs[index].data();
+
                           return Padding(
                             padding: const EdgeInsets.only(bottom: 20),
                             child: Material(
